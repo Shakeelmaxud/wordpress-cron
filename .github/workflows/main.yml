@@ -7,8 +7,8 @@ on:
 jobs:
   call-cron:
     runs-on: ubuntu-latest
-    steps:
-      - name: Hit Cron URL
-        run: |
-          curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
-          "https://dailyusa.rf.gd/?wp_automatic=cron"
+  steps:
+  - name: Trigger WP Cron via Proxy
+    run: |
+      curl -s -A "Mozilla/5.0" \
+      "https://corsproxy.io/?https://dailyusa.rf.gd/?wp_automatic=cron"
