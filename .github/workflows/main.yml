@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: Run WP-Cron
         run: |
-          curl -s "https://dailyusa.rf.gd/?wp_automatic=cron"
+      curl -s "https://corsproxy.io/?https://dailyusa.rf.gd/?wp_automatic=cron"
