@@ -1,22 +1,33 @@
-name: Real Browser Cron Trigger
+name: Advanced Browser Trigger
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Every 15 minutes
-  workflow_dispatch:        # Allow manual runs
+    - cron: '*/15 * * * *'
 
 jobs:
-  trigger-cron:
+  trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger via Real Browser
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Run Puppeteer Script
         env:
-          BROWSERLESS_KEY: ${{ secrets.BROWSERLESS_KEY }}  # Add your key in repo Settings > Secrets
+          BROWSERLESS_KEY: ${{ secrets.BROWSERLESS_KEY }}
         run: |
-          curl -X POST \
-          "https://chrome.browserless.io/content?token=${BROWSERLESS_KEY}" \
-          -H 'Content-Type: application/json' \
-          -d '{
-            "url": "https://dailyusa.rf.gd/?wp_automatic_cron",
-            "waitForTimeout": 5000,
-            "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-          }'
+          npm install puppeteer
+          node -e "
+          const puppeteer = require('puppeteer');
+          (async () => {
+            const browser = await puppeteer.connect({
+              browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_KEY}`
+            });
+            const page = await browser.newPage();
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64)');
+            await page.goto('https://dailyusa.rf.gd/?wp_automatic_cron', {
+              waitUntil: 'networkidle0',
+              timeout: 30000
+            });
+            await page.waitForTimeout(5000);
+            await browser.close();
+          })();"
