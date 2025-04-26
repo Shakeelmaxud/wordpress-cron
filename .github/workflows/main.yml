@@ -1,31 +1,22 @@
-name: Guaranteed WP Cron Trigger
+name: Real Browser Cron Trigger
 on:
   schedule:
-    - cron: '*/30 * * * *'  # Every 30 minutes
-  workflow_dispatch:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:        # Allow manual runs
 
 jobs:
   trigger-cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Multi-Layer Cron Trigger
+      - name: Trigger via Real Browser
+        env:
+          BROWSERLESS_KEY: ${{ secrets.BROWSERLESS_KEY }}  # Add your key in repo Settings > Secrets
         run: |
-          # 1. First try with mobile user-agent + cache busting
-          curl -s -k -A "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X)" \
-          "https://dailyusa.rf.gd/?wp_automatic=cron&t=$(date +%s)" || \
-          
-          # 2. If blocked, try through multiple proxy servers
-          curl -s -k -A "Mozilla/5.0" \
-          "https://cors-anywhere.herokuapp.com/https://dailyusa.rf.gd/?wp_automatic=cron" || \
-          
-          curl -s -k -A "Googlebot/2.1" \
-          "https://api.allorigins.win/get?url=$(echo 'https://dailyusa.rf.gd/?wp_automatic=cron' | jq -sRr @uri)" || \
-          
-          # 3. Final fallback to wp-cron.php
-          curl -s -k -A "Mozilla/5.0" \
-          "https://dailyusa.rf.gd/wp-cron.php?doing_wp_cron&t=$(date +%s)"
-          
-          # 4. Add random delay between attempts
-          sleep $(( RANDOM % 15 + 5 ))
-          
-          echo "All trigger methods attempted at $(date)"
+          curl -X POST \
+          "https://chrome.browserless.io/content?token=${BROWSERLESS_KEY}" \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "url": "https://dailyusa.rf.gd/?wp_automatic_cron",
+            "waitForTimeout": 5000,
+            "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+          }'
