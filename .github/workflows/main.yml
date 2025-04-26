@@ -16,6 +16,6 @@ jobs:
 
           # Step 2: Use cookie in second request
           curl -s -k -b "$COOKIE" -A "Mozilla/5.0" \
-          "https://dailyusa.rf.gd/?wp_automatic=cron&t=$(date +%s)"
+          "https://dailyusa.rf.gd/?wp_automatic=cron"
           
           echo "Cron bypass attempted at $(date)"
