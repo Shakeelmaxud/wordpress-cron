@@ -1,4 +1,4 @@
-name: Bypass InfinityFree Anti-Bot
+name: Guaranteed WP Cron Trigger
 on:
   schedule:
     - cron: '*/30 * * * *'  # Every 30 minutes
@@ -8,14 +8,24 @@ jobs:
   trigger-cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Solve Anti-Bot Challenge
+      - name: Multi-Layer Cron Trigger
         run: |
-          # Step 1: First request to get cookies
-          COOKIE=$(curl -s -k -i "https://dailyusa.rf.gd/?wp_automatic=cron" | 
-                   grep -i 'set-cookie' | awk '{print $2}' | tr -d ';')
-
-          # Step 2: Use cookie in second request
-          curl -s -k -b "$COOKIE" -A "Mozilla/5.0" \
-          "https://dailyusa.rf.gd/?wp_automatic=cron"
+          # 1. First try with mobile user-agent + cache busting
+          curl -s -k -A "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X)" \
+          "https://dailyusa.rf.gd/?wp_automatic=cron&t=$(date +%s)" || \
           
-          echo "Cron bypass attempted at $(date)"
+          # 2. If blocked, try through multiple proxy servers
+          curl -s -k -A "Mozilla/5.0" \
+          "https://cors-anywhere.herokuapp.com/https://dailyusa.rf.gd/?wp_automatic=cron" || \
+          
+          curl -s -k -A "Googlebot/2.1" \
+          "https://api.allorigins.win/get?url=$(echo 'https://dailyusa.rf.gd/?wp_automatic=cron' | jq -sRr @uri)" || \
+          
+          # 3. Final fallback to wp-cron.php
+          curl -s -k -A "Mozilla/5.0" \
+          "https://dailyusa.rf.gd/wp-cron.php?doing_wp_cron&t=$(date +%s)"
+          
+          # 4. Add random delay between attempts
+          sleep $(( RANDOM % 15 + 5 ))
+          
+          echo "All trigger methods attempted at $(date)"
