@@ -1,15 +1,14 @@
 name: Trigger WP Automatic Cron
 on:
   schedule:
-    - cron: '*/20 * * * *'  # Every 20 minutes
-  workflow_dispatch:  # Enable manual runs
+    - cron: '*/20 * * * *'  # Runs every 20 minutes
+  workflow_dispatch:        # Allows manual triggers
 
 jobs:
-  trigger-cron:
+  call-cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Cron
+      - name: Hit Cron URL
         run: |
-          curl -s -k --fail \
-          -A "GitHub-Actions-Cron" \
+          curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
           "https://dailyusa.rf.gd/?wp_automatic=cron"
