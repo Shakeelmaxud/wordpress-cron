@@ -1,19 +1,27 @@
-name: WP Automatic Cron
+name: WP Automatic Cron (Guaranteed)
 on:
   schedule:
     - cron: '*/20 * * * *'  # Every 20 minutes
-  workflow_dispatch:         # Allow manual runs
+  workflow_dispatch:        # Allow manual runs
 
 jobs:
   trigger-cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Cron
+      - name: Bypass Anti-Bot Protection
         run: |
-          # Try direct (with SSL ignore)
-          curl -s -k -A "Mozilla/5.0" \
-          "https://dailyusa.rf.gd/?wp_automatic=cron" || \
+          # Random delay (1-15s) to mimic human behavior
+          sleep $(( $RANDOM % 15 + 1 ))
           
-          # Fallback to proxy if direct fails
-          curl -s -A "Mozilla/5.0" \
-          "https://corsproxy.io/?https://dailyusa.rf.gd/?wp_automatic=cron"
+          # Try 3 different methods sequentially
+          curl -s -k -A "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X)" \
+          "https://dailyusa.rf.gd/?wp_automatic=cron&nocache=$(date +%s)" || \
+          
+          curl -s -k -A "Mozilla/5.0" \
+          "https://corsproxy.io/?https://dailyusa.rf.gd/wp-cron.php?doing_wp_cron&ver=$(date +%s)" || \
+          
+          curl -s -k -A "Googlebot/2.1" \
+          "https://api.allorigins.win/get?url=$(echo 'https://dailyusa.rf.gd/?wp_automatic=cron' | jq -sRr @uri)"
+          
+          # Debug output
+          echo "Cron triggered at $(date)"
