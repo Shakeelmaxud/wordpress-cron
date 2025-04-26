@@ -1,14 +1,19 @@
-name: Trigger WP Automatic Cron
+name: WP Automatic Cron
 on:
   schedule:
-    - cron: '*/20 * * * *'  # Runs every 20 minutes
-  workflow_dispatch:        # Allows manual triggers
+    - cron: '*/20 * * * *'  # Every 20 minutes
+  workflow_dispatch:         # Allow manual runs
 
 jobs:
-  call-cron:
+  trigger-cron:
     runs-on: ubuntu-latest
-  steps:
-  - name: Trigger WP Cron via Proxy
-    run: |
-      curl -s -A "Mozilla/5.0" \
-      "https://corsproxy.io/?https://dailyusa.rf.gd/?wp_automatic=cron"
+    steps:
+      - name: Trigger Cron
+        run: |
+          # Try direct (with SSL ignore)
+          curl -s -k -A "Mozilla/5.0" \
+          "https://dailyusa.rf.gd/?wp_automatic=cron" || \
+          
+          # Fallback to proxy if direct fails
+          curl -s -A "Mozilla/5.0" \
+          "https://corsproxy.io/?https://dailyusa.rf.gd/?wp_automatic=cron"
