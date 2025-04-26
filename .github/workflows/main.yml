@@ -1,0 +1,14 @@
+name: WordPress Cron Job
+on:
+  schedule:
+    # Runs every 20 minutes
+    - cron: '*/20 * * * *'
+  workflow_dispatch:  # Allows manual triggers
+
+jobs:
+  trigger-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run WP-Cron
+        run: |
+          curl -s "https://dailyusa.rf.gd/?wp_automatic=cron"
